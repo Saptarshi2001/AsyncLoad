@@ -1,4 +1,4 @@
-# PyLoad - Asynchronous HTTP Load Testing Tool
+# AsyncLoad - Asynchronous HTTP Load Testing Tool
 
 A high-performance, asynchronous load testing tool for HTTP endpoints built with Python and aiohttp. PyLoad can simulate concurrent requests to test the performance and reliability of web services, with integrated monitoring through Betterstack for comprehensive failure tracking.
 
