@@ -186,7 +186,7 @@ class Loadtester:
             print(f"{'-'*60}")
             if reqtype in ["get","post", "put", "patch", "delete"]:
                 self.insertpayload(requestlist)
-            self.calculatestats(totresponsetime,firstbytetime,lastbytetime)
+            self.stats(totresponsetime,firstbytetime,lastbytetime)
             
         except asyncio.TimeoutError as e:
         
@@ -303,7 +303,7 @@ class Loadtester:
             print("Runtime error")
             return
 
-    def calculatestats(self,totresponsetime,firstbytetime,lastbytetime):
+    def stats(self,totresponsetime,firstbytetime,lastbytetime):
         try:
 
             if not totresponsetime and not firstbytetime and not lastbytetime:
