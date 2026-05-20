@@ -12,30 +12,45 @@ import json
 import datetime
 from logtail import LogtailHandler
 import logging
-
 import dotenv
 from dotenv import load_dotenv
-config_path = os.getenv("PYLOAD_CONFIG")  # Optional env var pointing to config
-if config_path:
-    load_dotenv(config_path)
-else:
-    # Fallbacks in order: config.env, then .env in current working dir
-    load_dotenv("config.env")
-    load_dotenv(".env")
-dburl=os.getenv("DATABASE_URL")
-logging.basicConfig(level=logging.INFO)
-timeout=os.getenv("timeout")
-LOGTAIL_URL=os.getenv("LOGTAIL_URL")
-LOGTAIL_TOKEN=os.getenv("LOGTAIL_TOKEN")
 
-handler = LogtailHandler(
-    source_token=LOGTAIL_TOKEN, 
-    host=LOGTAIL_URL,
-)
+
+if sys.platform == "win32":
+    global_config_path = os.path.expandvars("%LOCALAPPDATA%/loadtester/config.env")
+else:
+    global_config_path = os.path.expanduser("~/.config/loadtester/config.env")
+
+def ensure_global_config():
+    if not os.path.exists(global_config_path):
+        os.makedirs(os.path.dirname(global_config_path), exist_ok=True)
+        with open(global_config_path, "w") as f:
+            f.write("""# Global config for pyload
+LOGTAIL_TOKEN=your_token_here
+LOGTAIL_URL=your_url_here
+TOTAL_REQUESTS=100
+CONCURRENT_REQUESTS=10
+HTTP_METHOD=get
+DATABASE_URL=load.db
+timeout=0
+""")
+
+load_dotenv("config.env")                    # CWD (highest priority)
+load_dotenv(global_config_path)              # Global fallback
+load_dotenv(".env") 
+dburl = os.getenv("DATABASE_URL") or "load.db"
+logging.basicConfig(level=logging.INFO)
+timeout = os.getenv("timeout") or "0"
+LOGTAIL_URL = os.getenv("LOGTAIL_URL")
+LOGTAIL_TOKEN = os.getenv("LOGTAIL_TOKEN")
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 logger.handlers = []
+handler = LogtailHandler(source_token=LOGTAIL_TOKEN, host=LOGTAIL_URL)
 logger.addHandler(handler)
+
+
 class Loadtester:
     def __init__(self):
         self.numreq=0
@@ -45,20 +60,18 @@ class Loadtester:
 
     def read(self):
         try:
+            parser=argparse.ArgumentParser(description="Async load testing cli",exit_on_error=False)
 
-            parser=argparse.ArgumentParser(description="Async load tester",exit_on_error=False)
-
-            parser.add_argument('ccload',type=str)
-            mode=parser.add_mutually_exclusive_group(required=True)
-            mode.add_argument('-history',action='store_true')
-            mode.add_argument('-u',type=str)
+            parser.add_argument('url', nargs='?', type=str, help='URL to load test')
+            parser.add_argument('-history', action='store_true')
+            parser.add_argument('-setup', action='store_true', help='Create global config file')
+            parser.add_argument('-n', type=int, help='Number of total requests (overrides config)')
+            parser.add_argument('-c', type=int, help='Number of concurrent requests (overrides config)')
             methods=parser.add_mutually_exclusive_group()
 
             parser.add_argument('-weekly', action='store_const', const='weekly')
             parser.add_argument('-monthly', action='store_const', const='monthly')
             parser.add_argument('-yearly', action='store_const', const='yearly')
-            parser.add_argument('-n',type=int)
-            parser.add_argument('-c',type=int)
             methods.add_argument('-GET', dest='method', action='store_const', const='get')
             methods.add_argument('-POST', dest='method', action='store_const', const='post')
             methods.add_argument('-PUT', dest='method', action='store_const', const='put')
@@ -67,32 +80,34 @@ class Loadtester:
             parser.add_argument('-d', '--data', type=str, help="JSON body or payload for POST/PUT/PATCH/DELETE")
             args=parser.parse_args()
 
+            if args.setup:
+                ensure_global_config()
+                print(f"Global config created at: {global_config_path}")
+                print("Edit it with your LOGTAIL_TOKEN and other settings before running.")
+                return
+
             timemode=args.weekly or args.monthly or args.yearly or None
             if args.history:
-                if args.u or args.n or args.c or args.method:
-                    raise argparse.ArgumentError(None,"-history cannot be used with -u, -n, -c or any HTTP method")
+                if args.url or args.method or args.n or args.c:
+                    print("Error: -history cannot be used with a URL or HTTP method or -n/-c")
+                    return
 
                 print("Running history mode")
                 self.history(timemode)
                 return
-                
-            if args.u:
-                if args.n is None or args.c is None:
-                    raise argparse.ArgumentError(None,"-u needs to have args.n")
 
-                if not args.method:
-                    raise argparse.ArgumentError(None, "An HTTP method (-GET, -POST, -PUT, -DELETE, -PATCH) is required")
+            if not args.url:
+                print("Error: provide a URL or use -history")
+                return
 
-                if args.c>args.n:
-                    print("Number of concurrent requests cannot be more than the number of total requests")
-                    return
-            url=args.u
-            self.numreq=args.n
-            if args.c==None:
-                self.conreq=0
-            self.conreq=args.c
-            reqtype = args.method
-            asyncio.run(self.testurl(url=url,numreq=self.numreq,conreq=self.conreq,reqtype=reqtype))
+            url = args.url
+            self.numreq = args.n if args.n is not None else int(os.getenv("TOTAL_REQUESTS", 100))
+            self.conreq = args.c if args.c is not None else int(os.getenv("CONCURRENT_REQUESTS", 10))
+            if self.conreq > self.numreq:
+                print("Number of concurrent requests cannot be more than the number of total requests")
+                return
+            reqtype = args.method or os.getenv("HTTP_METHOD", "get")
+            asyncio.run(self.testurl(url=url, numreq=self.numreq, conreq=self.conreq, reqtype=reqtype))
         except RuntimeError as e:
             logging.info("Runtime error "+ str(e))
             print("Runtime error "+str(e))

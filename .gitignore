@@ -104,6 +104,7 @@ venv.bak/
 dmypy.json
 
 # Project specific
+config.env
 load.db
 console.log
 *.db
@@ -116,7 +117,7 @@ console.log
 *.swp
 *.swo
 *~
-
+config.env
 # OS
 .DS_Store
 .DS_Store?

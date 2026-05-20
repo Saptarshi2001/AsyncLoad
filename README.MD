@@ -12,6 +12,12 @@ For version releases, use pip:
 
 ```bash
 pip install async-load-tester
+
+pyload -setup
+
+Set your betterstack env variables inside the config file. You can setup the number of requests,concurrent requests, as well as the http method either in the config file or simply use the cmd flags to override the values. Default values for number of requests,concurrent requests,http method is 100,10,GET.   
+
+pyload https://httpbin.org/ -n 100 -c 10 -GET
 ```
 
 ### Install from GitHub source
@@ -20,14 +26,17 @@ For building from source, install directly from the git repository:
 
 ```bash
 git clone <repository-url>
-cd asyncload
+cd Asyncload
+pip install .
+cp config.env.example config.env # set up your config file 
+pyload https://httpbin.org/ -n 100 -c 10 -GET
 ```
 
 Use Docker to build and run the source:
 
 ```bash
-docker build -t AsyncLoad .
-docker run --rm loadtester python pyload.py -u httpbin.org -n 1 -c 5 -GET
+docker compose build
+docker compose run --rm pyload https://httpbin.org/
 ```
 
 ### Running the tests
@@ -52,7 +61,7 @@ python -m unittest -v tests.testload
 If you have installed through pip, head over to your cmd and type:
 
 ```bash
-ccload -u https://httpbin.org/get -n 100 -c 10 -GET
+pyload https://httpbin.org/get -n 100 -c 10 -GET
 ```
 
 
@@ -61,16 +70,16 @@ ccload -u https://httpbin.org/get -n 100 -c 10 -GET
 
 ```bash
 # Basic GET request
-ccload -u https://jsonplaceholder.typicode.com/posts -n 1000 -c 50 -GET
+pyload https://jsonplaceholder.typicode.com/posts -n 1000 -c 50 -GET
 
 # Test user creation endpoint
-ccload -u https://reqres.in/api/users -n 100 -c 10 -POST -d '{"name": "John Doe", "job": "developer"}'
+pyload https://reqres.in/api/users -n 100 -c 10 -POST -d '{"name": "John Doe", "job": "developer"}'
 
 # High concurrency test
-ccload -u https://httpbin.org/delay/1 -n 1000 -c 100 -GET
+pyload https://httpbin.org/delay/1 -n 1000 -c 100 -GET
 
 # Stress test with timeout
-ccload -u https://httpbin.org/delay/2 -n 100 -c 10 -GET
+pyload https://httpbin.org/delay/2 -n 100 -c 10 -GET
 
 
 ```
@@ -78,6 +87,10 @@ ccload -u https://httpbin.org/delay/2 -n 100 -c 10 -GET
 ---
 
 ## API Reference
+
+### ensure_global_config()
+
+Creates the global config file in the user's system
 
 ### read()
 
@@ -150,7 +163,6 @@ Displays the load test statistics in the terminal.
 
 | Flag | Description |
 |------|-------------|
-| `-u` | The URL to test |
 | `-n` | Number of requests |
 | `-c` | Number of concurrent requests |
 | `-GET` / `-POST` / `-DELETE` / `-PUT` / `-HEAD` / `-PATCH` | HTTP method |

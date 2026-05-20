@@ -315,7 +315,7 @@ class TestDatabaseIntegrationWithMockedAPI(unittest.TestCase):
 
         with patch('pyload.dburl', self.db_path):
             with patch('builtins.print') as mock_print:
-                self.loadtester.calculatestats(
+                self.loadtester.stats(
                     [0.5, 0.7],
                     [0.1, 0.2],
                     [0.4, 0.5]

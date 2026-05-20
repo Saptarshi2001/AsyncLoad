@@ -4,6 +4,4 @@ services:
       context: .
     entrypoint: ["python","pyload.py"]
     volumes:
-      - .:/Loadtester
-    restart: always
-    env_file: ./config.env
+      - .:/LoadTester
