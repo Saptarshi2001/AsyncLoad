@@ -1,31 +1,31 @@
 import unittest
 import asyncio
 from unittest.mock import patch
-from pyload import Loadtester
+from asyncload import Loadtester
 
 
 class TestLoadTesterAsyncRealAPI(unittest.TestCase):
 
-    @patch('pyload.Loadtester.insertpayload')
-    @patch('pyload.Loadtester.stats')
+    @patch('asyncload.Loadtester.insertpayload')
+    @patch('asyncload.Loadtester.stats')
     @patch('builtins.print')
-    @patch('pyload.requests.post')
+    @patch('asyncload.requests.post')
     def test_real_api_get_request(self, mock_requests_post, mock_print, mock_stats, mock_insertpayload):
         loadtester = Loadtester()
         asyncio.run(self._run_test(loadtester, mock_print, 'get', 1, 1))
 
-    @patch('pyload.Loadtester.insertpayload')
-    @patch('pyload.Loadtester.stats')
+    @patch('asyncload.Loadtester.insertpayload')
+    @patch('asyncload.Loadtester.stats')
     @patch('builtins.print')
-    @patch('pyload.requests.post')
+    @patch('asyncload.requests.post')
     def test_real_api_post_request(self, mock_requests_post, mock_print, mock_stats, mock_insertpayload):
         loadtester = Loadtester()
         asyncio.run(self._run_test(loadtester, mock_print, 'post', 1, 1))
 
-    @patch('pyload.Loadtester.insertpayload')
-    @patch('pyload.Loadtester.stats')
+    @patch('asyncload.Loadtester.insertpayload')
+    @patch('asyncload.Loadtester.stats')
     @patch('builtins.print')
-    @patch('pyload.requests.post')
+    @patch('asyncload.requests.post')
     def test_real_api_concurrent_requests(self, mock_requests_post, mock_print, mock_stats, mock_insertpayload):
         loadtester = Loadtester()
         asyncio.run(self._run_test(loadtester, mock_print, 'get', 3, 2))

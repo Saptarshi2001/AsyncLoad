@@ -2,6 +2,7 @@ include README.MD
 include requirements.txt
 include LICENSE
 include CHANGELOG.md
+include config.env.example
 recursive-include tests *.py
 global-exclude *.pyc
 global-exclude __pycache__

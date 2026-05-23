@@ -59,8 +59,8 @@ jobs:
       uses: actions/checkout@v4
     - name: Build and run container
       run: |
-        docker build -t loadtester .
-        docker run --rm loadtester python pyload.py -u httpbin.org -n 10 -c 5 -GET
+        docker build -t asyncload .
+        docker run --rm asyncload python asyncload.py httpbin.org -n 10 -c 5 -GET
       env:
         DATABASE_URL: /tmp/load.db
         timeout: 30

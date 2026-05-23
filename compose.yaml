@@ -2,6 +2,6 @@ services:
   server:
     build:
       context: .
-    entrypoint: ["python","pyload.py"]
+    entrypoint: ["python","asyncload.py"]
     volumes:
-      - .:/LoadTester
+      - .:/AsyncLoad

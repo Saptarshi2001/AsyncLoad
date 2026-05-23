@@ -8,7 +8,7 @@
 pip install -r requirements.txt
 cp config.env.example config.env
 # Edit config.env with your LOGTAIL_TOKEN, LOGTAIL_URL, TOTAL_REQUESTS, CONCURRENT_REQUESTS, HTTP_METHOD
-python pyload.py https://example.com
+python asyncload https://example.com
 ```
 
 ### Install globally with pip
@@ -33,7 +33,7 @@ HTTP_METHOD=get
 
 Then run from anywhere:
 ```bash
-pyload https://example.com
+asyncload https://example.com
 ```
 
 ### Using Docker
@@ -58,15 +58,15 @@ HTTP_METHOD=post
 
 Then run without any flags:
 ```bash
-pyload https://example.com          # Uses n=200, c=20, method=post from config
+asyncload https://example.com          # Uses n=200, c=20, method=post from config
 ```
 
 ### Option B: CLI flags (quick one-off override)
 
 ```bash
-pyload https://example.com -n 500 -c 50    # Override n and c for this run
-pyload https://example.com -POST           # Override method for this run
-pyload https://example.com -n 500 -c 50 -POST  # Override all three
+asyncload https://example.com -n 500 -c 50    # Override n and c for this run
+asyncload https://example.com -POST           # Override method for this run
+asyncload https://example.com -n 500 -c 50 -POST  # Override all three
 ```
 
 ### Priority order
@@ -81,22 +81,22 @@ CLI flag (-n 500) → config file → hardcoded default (100 / 10 / get)
 
 ```bash
 # Minimal — uses config defaults
-pyload https://jsonplaceholder.typicode.com/posts
+asyncload https://jsonplaceholder.typicode.com/posts
 
 # Override method
-pyload https://jsonplaceholder.typicode.com/posts -POST
+asyncload https://jsonplaceholder.typicode.com/posts -POST
 
 # Override n and c
-pyload https://httpbin.org/delay/1 -n 1000 -c 100
+asyncload https://httpbin.org/delay/1 -n 1000 -c 100
 
 # With JSON data
-pyload https://reqres.in/api/users -POST -d '{"name": "John"}'
+asyncload https://reqres.in/api/users -POST -d '{"name": "John"}'
 
 # View history
-pyload -history
-pyload -history -weekly
-pyload -history -monthly
-pyload -history -yearly
+asyncload -history
+asyncload -history -weekly
+asyncload -history -monthly
+asyncload -history -yearly
 ```
 
 ---
@@ -123,7 +123,7 @@ Config files are read in this order (first found wins):
 ## CLI Reference
 
 ```bash
-pyload [url] [-history] [-n N] [-c C] [-GET | -POST | -PUT | -DELETE | -PATCH]
+asyncload [url] [-history] [-n N] [-c C] [-GET | -POST | -PUT | -DELETE | -PATCH]
        [-weekly] [-monthly] [-yearly] [-d DATA]
 ```
 

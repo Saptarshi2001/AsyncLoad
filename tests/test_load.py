@@ -7,7 +7,7 @@ from unittest.mock import AsyncMock, patch, MagicMock
 # Add the project root to the system path
 sys.path.append('.')
 
-from pyload import Loadtester
+from asyncload import Loadtester
 
 class TestLoadTesterReadErrorCases(unittest.TestCase):
     """Unit tests for error cases in the read() method"""
@@ -61,7 +61,7 @@ class TestLoadTesterReadErrorCases(unittest.TestCase):
     @patch('sys.argv', ['script.py', 'httpbin.org'])
     def test_url_without_method_flag(self):
         """Test that URL works without explicit method flag (falls back to env/default)"""
-        with patch('pyload.Loadtester.testurl') as mock_testurl:
+        with patch('asyncload.Loadtester.testurl') as mock_testurl:
             self.tester.read()
             mock_testurl.assert_called_once()
 
@@ -143,10 +143,10 @@ class TestLoadTesterReadErrorCases(unittest.TestCase):
 
     # ===== EDGE CASES =====
 
-    @patch('pyload.Loadtester.testurl')
-    @patch('pyload.Loadtester.insertpayload')
-    @patch('pyload.Loadtester.stats')
-    @patch('pyload.sqlite3.connect')
+    @patch('asyncload.Loadtester.testurl')
+    @patch('asyncload.Loadtester.insertpayload')
+    @patch('asyncload.Loadtester.stats')
+    @patch('asyncload.sqlite3.connect')
     @patch('sys.argv', ['script.py', 'not-a-valid-url', '-GET'])
     def test_invalid_url_format(self, mock_sqlite, mock_stats, mock_insertpayload, mock_testurl):
         """Test behavior with invalid URL format"""
@@ -171,10 +171,10 @@ class TestLoadTesterReadErrorCases(unittest.TestCase):
 
     # ===== VALID CASES (to ensure they don't error) =====
 
-    @patch('pyload.Loadtester.testurl')
-    @patch('pyload.Loadtester.insertpayload')
-    @patch('pyload.Loadtester.stats')
-    @patch('pyload.sqlite3.connect')
+    @patch('asyncload.Loadtester.testurl')
+    @patch('asyncload.Loadtester.insertpayload')
+    @patch('asyncload.Loadtester.stats')
+    @patch('asyncload.sqlite3.connect')
     @patch('sys.argv', ['script.py', 'httpbin.org', '-GET'])
     def test_valid_url_mode(self, mock_sqlite, mock_stats, mock_insertpayload, mock_testurl):
         """Test that valid URL mode arguments work"""

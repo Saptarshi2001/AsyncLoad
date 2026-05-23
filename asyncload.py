@@ -14,35 +14,23 @@ from logtail import LogtailHandler
 import logging
 import dotenv
 from dotenv import load_dotenv
+from config import GlobalConfig
 
+config_setup = GlobalConfig()
+load_dotenv(config_setup.platform_path())
+load_dotenv("config.env")
+load_dotenv(".env")
 
-if sys.platform == "win32":
-    global_config_path = os.path.expandvars("%LOCALAPPDATA%/loadtester/config.env")
-else:
-    global_config_path = os.path.expanduser("~/.config/loadtester/config.env")
-
-def ensure_global_config():
-    if not os.path.exists(global_config_path):
-        os.makedirs(os.path.dirname(global_config_path), exist_ok=True)
-        with open(global_config_path, "w") as f:
-            f.write("""# Global config for pyload
-LOGTAIL_TOKEN=your_token_here
-LOGTAIL_URL=your_url_here
-TOTAL_REQUESTS=100
-CONCURRENT_REQUESTS=10
-HTTP_METHOD=get
-DATABASE_URL=load.db
-timeout=0
-""")
-
-load_dotenv("config.env")                    # CWD (highest priority)
-load_dotenv(global_config_path)              # Global fallback
-load_dotenv(".env") 
 dburl = os.getenv("DATABASE_URL") or "load.db"
 logging.basicConfig(level=logging.INFO)
 timeout = os.getenv("timeout") or "0"
-LOGTAIL_URL = os.getenv("LOGTAIL_URL")
-LOGTAIL_TOKEN = os.getenv("LOGTAIL_TOKEN")
+LOGTAIL_URL = os.getenv("LOGTAIL_URL") or None
+LOGTAIL_TOKEN = os.getenv("LOGTAIL_TOKEN") or None
+
+if LOGTAIL_TOKEN==None:
+    print("Please setup a valid LOGTAIL TOKEN")
+elif LOGTAIL_URL==None:
+    print("Please use a valid LOGTAIL URL")
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -382,6 +370,9 @@ class Loadtester:
 
 
 def main():
+    config_setup.ensure_global_config()
+    load_dotenv("config.env")
+    load_dotenv(".env")
     load = Loadtester()
     load.read()
 

@@ -7,7 +7,7 @@ import tempfile
 import asyncio
 sys.path.append('.')
 
-from pyload import Loadtester
+from asyncload import Loadtester
 
 
 class TestLoadTesterInsertPayload(unittest.TestCase):
@@ -39,7 +39,7 @@ class TestLoadTesterInsertPayload(unittest.TestCase):
         conn.commit()
         conn.close()
 
-        with patch('pyload.dburl', self.db_path):
+        with patch('asyncload.dburl', self.db_path):
             self.loadtester.insertpayload([])
 
         conn = sqlite3.connect(self.db_path)
@@ -65,13 +65,13 @@ class TestLoadTesterInsertPayload(unittest.TestCase):
         conn.commit()
         conn.close()
 
-        with patch('pyload.dburl', self.db_path):
+        with patch('asyncload.dburl', self.db_path):
             self.loadtester.insertpayload([])
 
     def test_insertpayload_with_data_insertion(self):
         test_data = [1234567890.0, 'httpbin.org', 200, 'GET', 0.5]
 
-        with patch('pyload.dburl', self.db_path):
+        with patch('asyncload.dburl', self.db_path):
             self.loadtester.insertpayload([test_data])
 
         conn = sqlite3.connect(self.db_path)
@@ -96,19 +96,19 @@ class TestDatabaseConnectionAndExecution(unittest.TestCase):
             pass
 
     def test_database_connection_successful(self):
-        with patch('pyload.dburl', self.db_path):
+        with patch('asyncload.dburl', self.db_path):
             self.loadtester.insertpayload([])
 
         conn = sqlite3.connect(self.db_path)
         conn.close()
 
     def test_database_connection_failure(self):
-        with patch('pyload.dburl', '/invalid/path/db.db'):
+        with patch('asyncload.dburl', '/invalid/path/db.db'):
             result = self.loadtester.insertpayload([])
             self.assertIsNone(result, "Method should return None on connection failure")
 
     def test_cursor_creation(self):
-        with patch('pyload.dburl', self.db_path):
+        with patch('asyncload.dburl', self.db_path):
             self.loadtester.insertpayload([])
 
     def test_database_commit_operation(self):
@@ -127,18 +127,18 @@ class TestDatabaseConnectionAndExecution(unittest.TestCase):
         conn.commit()
         conn.close()
 
-        with patch('pyload.dburl', self.db_path):
+        with patch('asyncload.dburl', self.db_path):
             self.loadtester.insertpayload([])
 
     def test_database_connection_close(self):
-        with patch('pyload.dburl', self.db_path):
+        with patch('asyncload.dburl', self.db_path):
             self.loadtester.insertpayload([])
 
         conn = sqlite3.connect(self.db_path)
         conn.close()
 
     def test_connection_close_on_error(self):
-        with patch('pyload.dburl', '/invalid/path/db.db'):
+        with patch('asyncload.dburl', '/invalid/path/db.db'):
             try:
                 self.loadtester.insertpayload([])
             except:
@@ -162,13 +162,13 @@ class TestDatabaseConnectionAndExecution(unittest.TestCase):
         conn.commit()
         conn.close()
 
-        with patch('pyload.dburl', self.db_path):
+        with patch('asyncload.dburl', self.db_path):
             with patch('builtins.print') as mock_print:
                 self.loadtester.history()
                 self.assertTrue(len(mock_print.call_args_list) > 0, "History should produce output")
 
     def test_history_database_error_handling(self):
-        with patch('pyload.dburl', self.db_path):
+        with patch('asyncload.dburl', self.db_path):
             self.loadtester.history()
 
 
@@ -185,7 +185,7 @@ class TestDatabaseIntegrationWithMockedAPI(unittest.TestCase):
         except:
             pass
 
-    @patch('pyload.aiohttp.ClientSession')
+    @patch('asyncload.aiohttp.ClientSession')
     def test_mocked_api_get_request_database_storage(self, mock_session_class):
         mock_session = MagicMock()
         mock_session_class.return_value = mock_session
@@ -202,7 +202,7 @@ class TestDatabaseIntegrationWithMockedAPI(unittest.TestCase):
         mock_resp_cm.__aenter__.return_value = mock_resp
         mock_resp_cm.__aexit__.return_value = None
 
-        with patch('pyload.dburl', self.db_path):
+        with patch('asyncload.dburl', self.db_path):
             asyncio.run(self.loadtester.testurl(
                 url='https://httpbin.org/get',
                 numreq=2,
@@ -223,7 +223,7 @@ class TestDatabaseIntegrationWithMockedAPI(unittest.TestCase):
 
             conn.close()
 
-    @patch('pyload.aiohttp.ClientSession')
+    @patch('asyncload.aiohttp.ClientSession')
     def test_mocked_api_post_request_database_storage(self, mock_session_class):
         mock_session = MagicMock()
         mock_session_class.return_value = mock_session
@@ -240,7 +240,7 @@ class TestDatabaseIntegrationWithMockedAPI(unittest.TestCase):
         mock_resp_cm.__aenter__.return_value = mock_resp
         mock_resp_cm.__aexit__.return_value = None
 
-        with patch('pyload.dburl', self.db_path):
+        with patch('asyncload.dburl', self.db_path):
             asyncio.run(self.loadtester.testurl(
                 url='https://httpbin.org/post',
                 numreq=1,
@@ -277,7 +277,7 @@ class TestDatabaseIntegrationWithMockedAPI(unittest.TestCase):
         conn.commit()
         conn.close()
 
-        with patch('pyload.dburl', self.db_path):
+        with patch('asyncload.dburl', self.db_path):
             with patch('builtins.print') as mock_print:
                 self.loadtester.history()
 
@@ -313,7 +313,7 @@ class TestDatabaseIntegrationWithMockedAPI(unittest.TestCase):
         conn.commit()
         conn.close()
 
-        with patch('pyload.dburl', self.db_path):
+        with patch('asyncload.dburl', self.db_path):
             with patch('builtins.print') as mock_print:
                 self.loadtester.stats(
                     [0.5, 0.7],

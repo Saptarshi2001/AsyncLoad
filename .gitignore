@@ -117,7 +117,7 @@ console.log
 *.swp
 *.swo
 *~
-config.env
+
 # OS
 .DS_Store
 .DS_Store?
@@ -126,3 +126,4 @@ config.env
 .Trashes
 ehthumbs.db
 Thumbs.db
+USAGE.md
