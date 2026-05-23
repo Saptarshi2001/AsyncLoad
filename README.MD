@@ -11,7 +11,7 @@ AsyncLoad is an asynchronous load testing CLI designed to stress test your appli
 For version releases, use pip:
 
 ```bash
-pip install async-load-tester
+pip install AsyncLoad
 asyncload -setup
 
 Set your betterstack env variables inside the global config file thats created."%LOCALAPPDATA%/loadtester/config.env" for Windows,"~/.config/loadtester/config.env" for linux and Mac. You can setup the number of requests,concurrent requests, as well as the http method either in the config file or simply use the cmd flags to override the values. Default values for number of requests,concurrent requests,http method is 100,10,GET.   
