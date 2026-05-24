@@ -138,7 +138,7 @@ class Loadtester:
 
                         
                         t0=time.perf_counter()
-                        timestamp = time.time()
+                        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                         async with getattr(session,reqtype)(url,headers=headers) as resp:
                             try:
                                 firstbyte=await resp.content.readexactly(1)
@@ -254,43 +254,56 @@ class Loadtester:
             conn.close()
             # Print header based on time mode
             if timemode == "weekly":
-                header = f"{'Request ID':<12} | {'Timestamp':<15} | {'URL':<25} | {'Status':<8} | {'Method':<9} | {'Response Time':<15} | {'Week'}"
+                header = f"{'Request ID':<12} | {'Timestamp':<19} | {'URL':<25} | {'Status':<8} | {'Method':<9} | {'Response Time':<15} | {'Week'}"
                 print(header)
                 print("-" * len(header))
             elif timemode == "monthly":
-                header = f"{'Request ID':<12} | {'Timestamp':<15} | {'URL':<25} | {'Status':<8} | {'Method':<9} | {'Response Time':<15} | {'Month'}"
+                header = f"{'Request ID':<12} | {'Timestamp':<19} | {'URL':<25} | {'Status':<8} | {'Method':<9} | {'Response Time':<15} | {'Month'}"
                 print(header)
                 print("-" * len(header))
             elif timemode == "yearly":
-                header = f"{'Request ID':<12} | {'Timestamp':<15} | {'URL':<25} | {'Status':<8} | {'Method':<9} | {'Response Time':<15} | {'Year'}"
+                header = f"{'Request ID':<12} | {'Timestamp':<19} | {'URL':<25} | {'Status':<8} | {'Method':<9} | {'Response Time':<15} | {'Year'}"
                 print(header)
                 print("-" * len(header))
             else:
                 # Default history view without time grouping
-                header = f"{'Request ID':<12} | {'Timestamp':<15} | {'URL':<25} | {'Status':<8} | {'Method':<9} | {'Response Time':<15}"
+                header = f"{'Request ID':<12} | {'Timestamp':<19} | {'URL':<25} | {'Status':<8} | {'Method':<9} | {'Response Time':<15}"
                 print(header)
                 print("-" * len(header))
 
             for row in data:
                 try:
                     if timemode == "weekly":
-                        dt = datetime.datetime.fromtimestamp(float(row[1]))
+                        try:
+                            dt = datetime.datetime.strptime(row[1], "%Y-%m-%d %H:%M:%S")
+                        except ValueError:
+                            dt = datetime.datetime.fromtimestamp(float(row[1]))
                         week = dt.isocalendar().week
-                        print(f"{row[0]:<12} | {str(row[1])[:15]:<15} | {str(row[2])[:25]:<25} | {row[3]:<8} | {str(row[4]):<9} | {str(row[5])[:15]:<15} | {week}")
+                        print(f"{row[0]:<12} | {dt.strftime('%d:%m:%Y %H:%M:%S'):<19} | {str(row[2])[:25]:<25} | {row[3]:<8} | {str(row[4]):<9} | {str(row[5])[:15]:<15} | {week}")
 
                     elif timemode == "monthly":
-                        dt = datetime.datetime.fromtimestamp(float(row[1]))
+                        try:
+                            dt = datetime.datetime.strptime(row[1], "%Y-%m-%d %H:%M:%S")
+                        except ValueError:
+                            dt = datetime.datetime.fromtimestamp(float(row[1]))
                         month = dt.month
-                        print(f"{row[0]:<12} | {str(row[1])[:15]:<15} | {str(row[2])[:25]:<25} | {row[3]:<8} | {str(row[4]):<9} | {str(row[5])[:15]:<15} | {month}")
+                        print(f"{row[0]:<12} | {dt.strftime('%d:%m:%Y %H:%M:%S'):<19} | {str(row[2])[:25]:<25} | {row[3]:<8} | {str(row[4]):<9} | {str(row[5])[:15]:<15} | {month}")
 
                     elif timemode == "yearly":
-                        dt = datetime.datetime.fromtimestamp(float(row[1]))
+                        try:
+                            dt = datetime.datetime.strptime(row[1], "%Y-%m-%d %H:%M:%S")
+                        except ValueError:
+                            dt = datetime.datetime.fromtimestamp(float(row[1]))
                         year = dt.year
-                        print(f"{row[0]:<12} | {str(row[1])[:15]:<15} | {str(row[2])[:25]:<25} | {row[3]:<8} | {str(row[4]):<9} | {str(row[5])[:15]:<15} | {year}")
+                        print(f"{row[0]:<12} | {dt.strftime('%d:%m:%Y %H:%M:%S'):<19} | {str(row[2])[:25]:<25} | {row[3]:<8} | {str(row[4]):<9} | {str(row[5])[:15]:<15} | {year}")
 
                     else:
                         # Default view
-                        print(f"{row[0]:<12} | {str(row[1])[:15]:<15} | {str(row[2])[:25]:<25} | {row[3]:<8} | {str(row[4]):<9} | {str(row[5])[:15]:<15}")
+                        try:
+                            dt = datetime.datetime.strptime(row[1], "%Y-%m-%d %H:%M:%S")
+                        except ValueError:
+                            dt = datetime.datetime.fromtimestamp(float(row[1]))
+                        print(f"{row[0]:<12} | {dt.strftime('%d:%m:%Y %H:%M:%S'):<19} | {str(row[2])[:25]:<25} | {row[3]:<8} | {str(row[4]):<9} | {str(row[5])[:15]:<15}")
 
                 except (ValueError, TypeError, AttributeError) as e:
                     logging.error(f"Error processing history data: {e}")
@@ -350,20 +363,24 @@ class Loadtester:
         print(f"{'-'*60}")
 
         # Print table header
-        header = f"{'Request ID':<12} | {'Timestamp':<18} | {'URL':<30} | {'Status':<8} | {'Method':<9} | {'Response Time'}"
+        header = f"{'Request ID':<12} | {'Timestamp':<19} | {'URL':<30} | {'Status':<8} | {'Method':<9} | {'Response Time'}"
         print(header)
         print("-" * len(header))
 
         # Print each request
         for lst in reqlist:
             reqid = lst[0]
-            timestamp = str(lst[1])[:18]  # Truncate timestamp if too long
+            try:
+                dt = datetime.datetime.strptime(lst[1], "%Y-%m-%d %H:%M:%S")
+            except ValueError:
+                dt = datetime.datetime.fromtimestamp(float(lst[1]))
+            timestamp = dt.strftime("%d:%m:%Y %H:%M:%S")
             url = str(lst[2])[:30]        # Truncate URL if too long
             status = lst[3]
             reqtype = str(lst[4])
             responsetime = f"{lst[5]:.6f}"  # Format response time to 6 decimal places
 
-            print(f"{reqid:<12} | {timestamp:<18} | {url:<30} | {status:<8} | {reqtype:<9} | {responsetime}")
+            print(f"{reqid:<12} | {timestamp:<19} | {url:<30} | {status:<8} | {reqtype:<9} | {responsetime}")
 
         print(f"{'='*60}")
     # how to actually send the id as well

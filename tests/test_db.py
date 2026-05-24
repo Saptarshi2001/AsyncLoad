@@ -69,7 +69,7 @@ class TestLoadTesterInsertPayload(unittest.TestCase):
             self.loadtester.insertpayload([])
 
     def test_insertpayload_with_data_insertion(self):
-        test_data = [1234567890.0, 'httpbin.org', 200, 'GET', 0.5]
+        test_data = ['2023-01-01 12:00:00', 'httpbin.org', 200, 'GET', 0.5]
 
         with patch('asyncload.dburl', self.db_path):
             self.loadtester.insertpayload([test_data])
@@ -322,6 +322,56 @@ class TestDatabaseIntegrationWithMockedAPI(unittest.TestCase):
                 )
 
                 self.assertTrue(len(mock_print.call_args_list) > 0, "Statistics should be printed")
+
+
+
+class TestHistoryTimestampFormat(unittest.TestCase):
+    def setUp(self):
+        self.loadtester = Loadtester()
+        self.temp_db = tempfile.NamedTemporaryFile(delete=False, suffix='.db')
+        self.temp_db.close()
+        self.db_path = self.temp_db.name
+
+    def tearDown(self):
+        try:
+            os.unlink(self.db_path)
+        except:
+            pass
+
+    def _seed_data(self, timestamps):
+        conn = sqlite3.connect(self.db_path)
+        curr = conn.cursor()
+        curr.execute("""
+        CREATE TABLE IF NOT EXISTS LOADTEST(
+        REQUESTID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        TIMESTAMP TEXT NOT NULL,
+        URL TEXT NOT NULL,
+        STATUS INTEGER NOT NULL,
+        REQTYPE VARCHAR NOT NULL,
+        RESPONSETIME TEXT NOT NULL
+        )
+        """)
+        for ts in timestamps:
+            curr.execute("INSERT INTO LOADTEST (TIMESTAMP,URL,STATUS,REQTYPE,RESPONSETIME) VALUES (?,?,?,?,?)",
+                         (str(ts), 'httpbin.org', 200, 'GET', '0.5'))
+        conn.commit()
+        conn.close()
+
+    def test_history_default_format(self):
+        self._seed_data(['2023-01-01 12:00:00'])
+        with patch('asyncload.dburl', self.db_path):
+            with patch('builtins.print') as mock_print:
+                self.loadtester.history()
+                output = " ".join(str(call) for call in mock_print.call_args_list)
+                self.assertIn("01:01:2023", output)
+
+    def test_history_weekly_format(self):
+        self._seed_data(['2023-01-01 12:00:00', '2023-01-31 12:00:00'])
+        with patch('asyncload.dburl', self.db_path):
+            with patch('builtins.print') as mock_print:
+                self.loadtester.history(timemode="weekly")
+                output = " ".join(str(call) for call in mock_print.call_args_list)
+                self.assertIn("01:01:2023", output)
 
 
 if __name__ == '__main__':
