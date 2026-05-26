@@ -131,6 +131,8 @@ class Loadtester:
             lastbytetime=[]
             requestlist=[]
             failmsgs=[]
+            responselatencies=[]
+           
             async with aiohttp.ClientSession(connector=connector,timeout=ClientTimeout(float(timeout))) as session:
                 async def getresult(url):
                     nonlocal successes,failures
@@ -140,19 +142,21 @@ class Loadtester:
                         t0=time.perf_counter()
                         timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                         async with getattr(session,reqtype)(url,headers=headers) as resp:
+                            
                             try:
                                 firstbyte=await resp.content.readexactly(1)
-                                timefirstbyte=time.perf_counter()-t0
-                                firstbytetime.append(timefirstbyte)
+                                timetofirstbyte=time.perf_counter()-t0
+                                firstbytetime.append(timetofirstbyte)
                             except asyncio.IncompleteReadError:
-                                timefirstbyte = 0  # or some default
-                                firstbytetime.append(timefirstbyte)
+                                timetofirstbyte = 0  # or some default
+                                firstbytetime.append(timetofirstbyte)
                             content = await resp.content.read()
-                            timelastbyte=time.perf_counter()-t0
+                            timetolastbyte=time.perf_counter()-t0
                             endtime=time.perf_counter()
-                            lastbytetime.append(timelastbyte)
+                            lastbytetime.append(timetolastbyte)
                             diff=endtime-t0
                             requestlist.append([timestamp,url,resp.status,reqtype,diff])
+                            responselatencies.append(diff)
                             totresponsetime.append(diff)
 
                             statuscode= resp.status
@@ -176,9 +180,10 @@ class Loadtester:
                 
                     except aiohttp.ClientError as e:
                         print("aiohttp exception"+ str(e))
-
+                start_interval=time.perf_counter()
                 tasks=[asyncio.create_task(getresult(url))for i in range(self.numreq)]
                 await asyncio.gather(*tasks) 
+                time_interval=time.perf_counter()-start_interval
             print(f"{'='*60}")
             print(f"{'Load Test Results':^60}")
             print(f"{'='*60}")
@@ -189,7 +194,10 @@ class Loadtester:
             print(f"{'-'*60}")
             if reqtype in ["get","post", "put", "patch", "delete"]:
                 self.insertpayload(requestlist)
-            self.stats(totresponsetime,firstbytetime,lastbytetime)
+            throughput=successes/time_interval
+            error_rate=(failures/numreq)*100
+            avg_latency=sum(requestlist)/numreq
+            self.stats(totresponsetime,firstbytetime,lastbytetime,responselatencies,numreq,throughput,error_rate,avg_latency)
             
         except asyncio.TimeoutError as e:
         
@@ -319,7 +327,7 @@ class Loadtester:
             print("Runtime error")
             return
 
-    def stats(self,totresponsetime,firstbytetime,lastbytetime):
+    def stats(self,totresponsetime,firstbytetime,lastbytetime,responselatencies,numreq,throughput,error_rate,avg_latency):
         try:
 
             if not totresponsetime and not firstbytetime and not lastbytetime:
@@ -333,7 +341,9 @@ class Loadtester:
             elif not lastbytetime:
                 print("Error!!! No last bytes found")
                 return
-
+            sorted_latencies=sorted(responselatencies)
+            p99=0.99*numreq
+            p95=0.95*numreq
             print("\n")
             print(f"{'Performance Statistics':^60}")
             print(f"{'-'*60}")
@@ -351,6 +361,11 @@ class Loadtester:
             print(f"{'  Maximum:':<15} {max(lastbytetime):>12.6f}")
             print(f"{'  Minimum:':<15} {min(lastbytetime):>12.6f}")
             print(f"{'  Average:':<15} {sum(lastbytetime)/len(lastbytetime):>12.6f}")
+            print(f"{'  P99 latency:':<15} {p99}")
+            print(f"{'  P95 latency:':<15} {p95}")
+            print(f"{'  Throughput:':<15} {throughput}")
+            print(f"{'  Error rate:':<15} {error_rate}")
+            print(f"{'  Average latency:':<15} {avg_latency}")
             print(f"{'='*60}")
 
         except RuntimeError as e:
