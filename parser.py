@@ -1,6 +1,17 @@
 import argparse
 from config import GlobalConfig
 import os
+from dataclasses import dataclass
+
+@dataclass
+class Params:
+    url:str
+    numreq:int
+    conreq:int
+    method:str
+    timemode:str|None
+    body:dict|None
+
 
 
 class ProtocolParser:
@@ -69,7 +80,7 @@ class ProtocolParser:
                 )
 
             print("Running history mode")
-            return None, None, None, None, timemode
+            return Params(None,None,None,None,timemode)
         if not args.url:
             self.parser.error("Error: provide a URL or use -history")
 
@@ -82,6 +93,7 @@ class ProtocolParser:
             self.parser.error(
                 "Number of concurrent requests cannot be more than the number of total requests"
             )
-
+        body=args.d if args.d is not None else None
         reqtype = args.method or os.getenv("HTTP_METHOD", "get")
-        return url, numreq, conreq, reqtype, timemode
+        return Params(url,numreq,conreq,reqtype,timemode,body)
+        

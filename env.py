@@ -13,7 +13,7 @@ class EnvKeys:
 
 @dataclass
 class Env:
-    URL:str
+    MONGO_URL:str
     DATABASE:str
     COLLECTION:str
     TIMEOUT:int
@@ -22,7 +22,7 @@ class Env:
     HTTP_METHOD:str
 
 def getenv():
-    url = os.getenv(EnvKeys.MONGO_URL)
+    mongourl = os.getenv(EnvKeys.MONGO_URL)
     database = os.getenv(EnvKeys.MONGO_DATABASE)
     collection_name = os.getenv(EnvKeys.MONGO_COLLECTION)
     timeout=os.getenv(EnvKeys.TIMEOUT)
@@ -30,4 +30,4 @@ def getenv():
     concurrent_requests=os.getenv(EnvKeys.CONCURRENT_REQUESTS)
     method=os.getenv(EnvKeys.HTTP_METHOD)
 
-    return Env(url,database,collection_name,timeout,total_requests,concurrent_requests,method)
+    return Env(mongourl,database,collection_name,timeout,total_requests,concurrent_requests,method)

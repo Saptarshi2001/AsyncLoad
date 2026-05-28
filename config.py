@@ -28,9 +28,12 @@ class GlobalConfig:
             os.makedirs(os.path.dirname(self.global_config_path), exist_ok=True)
         with open(self.global_config_path, "w") as f:
             f.write("""# Global config for AsyncLoad  
-            TOTAL_REQUESTS=100
-            CONCURRENT_REQUESTS=10
-            HTTP_METHOD=get
-            DATABASE_URL=load.db
-            timeout=0
+            MONGO_URL=
+    MONGO_DATABASE=
+    MONGO_COLLECTION=
+    TIMEOUT=0
+    TOTAL_REQUESTS=100
+    CONCURRENT_REQUESTS=10
+    HTTP_METHOD=get
+
             """)

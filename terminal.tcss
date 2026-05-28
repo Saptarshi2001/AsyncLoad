@@ -1,0 +1,57 @@
+Screen {
+    background: #282a36;
+    color: #f8f8f2;
+}
+
+Header,
+Footer {
+    background: #44475a;
+    color: #ff79c6;
+    text-style: bold;
+}
+
+#dashboard {
+    align: center middle;
+    height: 100%;
+    padding: 2 4;
+}
+
+#panel {
+    width: 72;
+    max-width: 100%;
+    border: tall #bd93f9;
+    background: #282a36;
+    padding: 1 2;
+}
+
+#title {
+    color: #8be9fd;
+    text-align: center;
+    text-style: bold;
+    margin-bottom: 1;
+}
+
+MetricRow {
+    layout: horizontal;
+    height: 3;
+    padding: 0 1;
+    border-bottom: hkey #44475a;
+}
+
+MetricRow:hover {
+    background: #44475a;
+}
+
+.metric-name {
+    width: 1fr;
+    color: #ff79c6;
+    text-style: bold;
+    content-align: left middle;
+}
+
+.metric-value {
+    width: 2fr;
+    color: #f1fa8c;
+    text-align: right;
+    content-align: right middle;
+}
