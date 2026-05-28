@@ -153,3 +153,40 @@ docker compose run --rm server https://example.com
 # Run with CLI overrides
 docker compose run --rm server https://example.com -n 500 -c 50 -POST
 ```
+
+
+
+try:
+            dburl = os.getenv("DATABASE_URL") or "load.db"
+            conn=sqlite3.connect(dburl)
+            curr=conn.cursor()
+            data=curr.execute("SELECT * FROM Session_History").fetchall()
+            conn.commit()
+            conn.close()
+
+
+def desc(self,reqlist):
+        print(f"{'Individual Request Details':^60}")
+        print(f"{'-'*60}")
+
+        # Print table header
+        header = f"{'Request ID':<12} | {'Timestamp':<19} | {'URL':<30} | {'Status':<8} | {'Method':<9} | {'Response Time'}"
+        print(header)
+        print("-" * len(header))
+
+        # Print each request
+        for lst in reqlist:
+            reqid = lst[0]
+            try:
+                dt = datetime.datetime.strptime(lst[1], "%Y-%m-%d %H:%M:%S")
+            except ValueError:
+                dt = datetime.datetime.fromtimestamp(float(lst[1]))
+            timestamp = dt.strftime("%d:%m:%Y %H:%M:%S")
+            url = str(lst[2])[:30]        # Truncate URL if too long
+            status = lst[3]
+            reqtype = str(lst[4])
+            responsetime = f"{lst[5]:.6f}"  # Format response time to 6 decimal places
+
+            print(f"{reqid:<12} | {timestamp:<19} | {url:<30} | {status:<8} | {reqtype:<9} | {responsetime}")
+
+        print(f"{'='*60}")

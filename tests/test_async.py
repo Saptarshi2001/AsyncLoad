@@ -5,38 +5,50 @@ from asyncload import Loadtester
 
 
 class TestLoadTesterAsyncRealAPI(unittest.TestCase):
-
-    @patch('asyncload.Loadtester.insertpayload')
-    @patch('asyncload.Loadtester.stats')
-    @patch('builtins.print')
-    @patch('asyncload.requests.post')
-    def test_real_api_get_request(self, mock_requests_post, mock_print, mock_stats, mock_insertpayload):
+    @patch("asyncload.Loadtester.insertpayload")
+    @patch("asyncload.Loadtester.stats")
+    @patch("builtins.print")
+    @patch("asyncload.requests.post")
+    def test_real_api_get_request(
+        self, mock_requests_post, mock_print, mock_stats, mock_insertpayload
+    ):
         loadtester = Loadtester()
-        asyncio.run(self._run_test(loadtester, mock_print, 'get', 1, 1))
+        asyncio.run(self._run_test(loadtester, mock_print, "get", 1, 1))
 
-    @patch('asyncload.Loadtester.insertpayload')
-    @patch('asyncload.Loadtester.stats')
-    @patch('builtins.print')
-    @patch('asyncload.requests.post')
-    def test_real_api_post_request(self, mock_requests_post, mock_print, mock_stats, mock_insertpayload):
+    @patch("asyncload.Loadtester.insertpayload")
+    @patch("asyncload.Loadtester.stats")
+    @patch("builtins.print")
+    @patch("asyncload.requests.post")
+    def test_real_api_post_request(
+        self, mock_requests_post, mock_print, mock_stats, mock_insertpayload
+    ):
         loadtester = Loadtester()
-        asyncio.run(self._run_test(loadtester, mock_print, 'post', 1, 1))
+        asyncio.run(self._run_test(loadtester, mock_print, "post", 1, 1))
 
-    @patch('asyncload.Loadtester.insertpayload')
-    @patch('asyncload.Loadtester.stats')
-    @patch('builtins.print')
-    @patch('asyncload.requests.post')
-    def test_real_api_concurrent_requests(self, mock_requests_post, mock_print, mock_stats, mock_insertpayload):
+    @patch("asyncload.Loadtester.insertpayload")
+    @patch("asyncload.Loadtester.stats")
+    @patch("builtins.print")
+    @patch("asyncload.requests.post")
+    def test_real_api_concurrent_requests(
+        self, mock_requests_post, mock_print, mock_stats, mock_insertpayload
+    ):
         loadtester = Loadtester()
-        asyncio.run(self._run_test(loadtester, mock_print, 'get', 3, 2))
+        asyncio.run(self._run_test(loadtester, mock_print, "get", 3, 2))
 
     async def _run_test(self, loadtester, mock_print, method, total, concurrent):
-        url = 'https://httpbin.org/get'
+        url = "https://httpbin.org/get"
         await loadtester.testurl(url, total, concurrent, method)
 
         # ✅ robust checks
-        self.assertTrue(any("Total Requests:" in str(call) for call in mock_print.call_args_list))
-        self.assertTrue(any("Concurrent Requests:" in str(call) for call in mock_print.call_args_list))
+        self.assertTrue(
+            any("Total Requests:" in str(call) for call in mock_print.call_args_list)
+        )
+        self.assertTrue(
+            any(
+                "Concurrent Requests:" in str(call)
+                for call in mock_print.call_args_list
+            )
+        )
 
         success_count = 0
         failure_count = 0
