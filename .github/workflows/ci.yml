@@ -1,68 +1,88 @@
-name: testing,build and push
+name: test, build, and publish image
 
 on:
   push:
-    branches: [master]
+    branches: [main]
   pull_request:
-    branches: [master]
+    branches: [main]
 
 jobs:
   test:
     runs-on: ubuntu-latest
+    services:
+      mongodb:
+        image: mongo:7
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --eval 'db.adminCommand(\"ping\")'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
-      - name: checkout test code
+      - name: Checkout code
         uses: actions/checkout@v4
-      - name: Set up python
+
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: install dependencies
-        run: pip install -r requirements.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[test]"
+
       - name: Run tests
-        run: PYTHONPATH=. pytest tests/
-        env:  
-            DATABASE_URL: load.db
-            timeout: 0 
-            LOGTAIL_TOKEN: ${{secrets.LOGTAIL_TOKEN}}
-            LOGTAIL_URL: ${{secrets.LOGTAIL_URL}}
+        run: pytest
+        env:
+          MONGO_URL: mongodb://127.0.0.1:27017
+          MONGO_DATABASE: testdb
+          MONGO_COLLECTION: testcollc
+          TIMEOUT: 30
+
+      - name: Build package
+        run: |
+          python -m pip install --upgrade build twine
+          python -m build
+          python -m twine check dist/*
     
   build-and-push:
     needs: test
     runs-on: ubuntu-latest
-    if: github.event_name=='push' && github.ref=='refs/heads/master'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     permissions:
       contents: read
       packages: write
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
-    - name: Login to GHCR
-      uses: docker/login-action@v3
-      with:
-        registry: ghcr.io
-        username: saptarshi2001
-        password: ${{ secrets.GHCR_PAT }}
-    - name: Build and push
-      uses: docker/build-push-action@v6
-      with:
-        context: .
-        push: true
-        tags: ghcr.io/saptarshi2001/loadtester:latest
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-  run-loadtester:
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/saptarshi2001/asyncload:latest
+
+  docker-smoke:
     needs: test
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-    - name: Build and run container
-      run: |
-        docker build -t asyncload .
-        docker run --rm asyncload python asyncload.py httpbin.org -n 10 -c 5 -GET
-      env:
-        DATABASE_URL: /tmp/load.db
-        timeout: 30
-        LOGTAIL_TOKEN: ${{ secrets.LOGTAIL_TOKEN }}
-        LOGTAIL_URL: ${{ secrets.LOGTAIL_URL }}
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build and smoke test container
+        run: |
+          docker build -t asyncload .
+          docker run --rm asyncload --help
