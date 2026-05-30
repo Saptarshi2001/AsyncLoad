@@ -1,68 +1,48 @@
-import unittest
 import asyncio
-from unittest.mock import patch
-from asyncload import Loadtester
+import unittest
+from unittest.mock import MagicMock, patch
+
+from asyncload import LoadRunner
 
 
-class TestLoadTesterAsyncRealAPI(unittest.TestCase):
-    @patch("asyncload.Loadtester.insertpayload")
-    @patch("asyncload.Loadtester.stats")
-    @patch("builtins.print")
-    @patch("asyncload.requests.post")
-    def test_real_api_get_request(
-        self, mock_requests_post, mock_print, mock_stats, mock_insertpayload
+class TestLoadRunner(unittest.TestCase):
+    def test_runner_can_be_created(self):
+        runner = LoadRunner()
+
+        self.assertIsInstance(runner, LoadRunner)
+
+    def test_view_session_history_is_currently_a_noop(self):
+        runner = LoadRunner()
+
+        self.assertIsNone(runner.view_session_history())
+        self.assertIsNone(runner.view_session_history(timemode="weekly"))
+
+    @patch("asyncload.cli.Terminal")
+    @patch("asyncload.cli.aiohttp.ClientSession")
+    @patch("asyncload.cli.aiohttp.TCPConnector")
+    @patch("asyncload.cli.getenv")
+    def test_run_handles_runtime_errors(
+        self, mock_getenv, mock_connector, mock_session, mock_terminal
     ):
-        loadtester = Loadtester()
-        asyncio.run(self._run_test(loadtester, mock_print, "get", 1, 1))
+        runner = LoadRunner()
+        mock_getenv.return_value = MagicMock(TIMEOUT=1)
+        mock_session.side_effect = RuntimeError("boom")
 
-    @patch("asyncload.Loadtester.insertpayload")
-    @patch("asyncload.Loadtester.stats")
-    @patch("builtins.print")
-    @patch("asyncload.requests.post")
-    def test_real_api_post_request(
-        self, mock_requests_post, mock_print, mock_stats, mock_insertpayload
-    ):
-        loadtester = Loadtester()
-        asyncio.run(self._run_test(loadtester, mock_print, "post", 1, 1))
-
-    @patch("asyncload.Loadtester.insertpayload")
-    @patch("asyncload.Loadtester.stats")
-    @patch("builtins.print")
-    @patch("asyncload.requests.post")
-    def test_real_api_concurrent_requests(
-        self, mock_requests_post, mock_print, mock_stats, mock_insertpayload
-    ):
-        loadtester = Loadtester()
-        asyncio.run(self._run_test(loadtester, mock_print, "get", 3, 2))
-
-    async def _run_test(self, loadtester, mock_print, method, total, concurrent):
-        url = "https://httpbin.org/get"
-        await loadtester.testurl(url, total, concurrent, method)
-
-        # ✅ robust checks
-        self.assertTrue(
-            any("Total Requests:" in str(call) for call in mock_print.call_args_list)
-        )
-        self.assertTrue(
-            any(
-                "Concurrent Requests:" in str(call)
-                for call in mock_print.call_args_list
+        async def run_case():
+            return await runner.run(
+                "https://example.com",
+                numreq=1,
+                conreq=1,
+                reqtype="get",
             )
-        )
 
-        success_count = 0
-        failure_count = 0
+        import asyncio
 
-        for call in mock_print.call_args_list:
-            args = call[0]
-            if len(args) >= 2:
-                if "Successful Requests:" in str(args[0]):
-                    success_count = args[1]
-                if "Failed Requests:" in str(args[0]):
-                    failure_count = args[1]
+        result = asyncio.run(run_case())
 
-        total_processed = success_count + failure_count
-        self.assertGreaterEqual(total_processed, 0)
+        self.assertIsNone(result)
+        mock_connector.assert_called_once_with(limit=1, limit_per_host=1)
+        mock_terminal.assert_not_called()
 
 
 if __name__ == "__main__":

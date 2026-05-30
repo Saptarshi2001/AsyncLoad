@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 import argparse
-from config import GlobalConfig
 import os
 from dataclasses import dataclass
+from .config import GlobalConfig
 
 @dataclass
 class Params:
@@ -19,6 +21,8 @@ class ProtocolParser:
         self.parser = argparse.ArgumentParser(
             description="Async load testing cli", exit_on_error=False
         )
+        self.add_args()
+        self.add_mutually_excusive_groups()
 
     def add_args(self):
         self.parser.add_argument("url", nargs="?", type=str, help="URL to load test")
@@ -67,7 +71,7 @@ class ProtocolParser:
 
         if args.setup:
             config_setup = GlobalConfig()
-            global_config_path = config_setup.global_config_path()
+            global_config_path = config_setup.platform_path()
             config_setup.ensure_global_config()
             self.parser.exit(0,f"Global config created at: {global_config_path}")
             
@@ -89,7 +93,7 @@ class ProtocolParser:
         conreq = (
             args.c if args.c is not None else int(os.getenv("CONCURRENT_REQUESTS", 10))
         )
-        if self.conreq > self.numreq:
+        if conreq > numreq:
             self.parser.error(
                 "Number of concurrent requests cannot be more than the number of total requests"
             )

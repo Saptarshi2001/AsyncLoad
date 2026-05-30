@@ -1,5 +1,5 @@
-from env import getenv
 import pymongo
+from .env import getenv
 
 class Record:
 

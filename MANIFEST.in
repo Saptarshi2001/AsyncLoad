@@ -3,6 +3,7 @@ include requirements.txt
 include LICENSE
 include CHANGELOG.md
 include config.env.example
+recursive-include src/asyncload *.tcss
 recursive-include tests *.py
 global-exclude *.pyc
 global-exclude __pycache__

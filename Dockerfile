@@ -1,5 +1,5 @@
 FROM python:3.12-alpine
-WORKDIR /LoadTester
+WORKDIR /AsyncLoad
 COPY . .
-RUN pip install -r requirements.txt
-ENTRYPOINT ["python","pyload.py"]
+RUN pip install .
+ENTRYPOINT ["asyncload"]

@@ -1,21 +1,6 @@
-
-try:
-    from textual.app import App, ComposeResult
-    from textual.containers import Container, VerticalScroll
-    from textual.widgets import Footer, Header, Label, Static
-except ImportError as exc:
-    App = object
-    ComposeResult = object
-    Container = None
-    VerticalScroll = None
-    Footer = None
-    Header = None
-    Label = None
-    Static = object
-    _TEXTUAL_IMPORT_ERROR = exc
-else:
-    _TEXTUAL_IMPORT_ERROR = None
-
+from textual.app import App, ComposeResult
+from textual.containers import Container, VerticalScroll
+from textual.widgets import Footer, Header, Label, Static
 
 class MetricRow(Static):
     def __init__(self, name, value):
@@ -45,11 +30,6 @@ class Terminal(App):
     TITLE = "AsyncLoad DashBoard"
     
     def __init__(self, metrics):
-        if _TEXTUAL_IMPORT_ERROR is not None:
-            raise RuntimeError(
-                "Textual is required to display terminal metrics. "
-                "Install it with: pip install textual"
-            ) from _TEXTUAL_IMPORT_ERROR
         super().__init__()
         self.metrics = metrics or {}
 

@@ -1,23 +1,10 @@
-import requests
-import argparse, sys
-import re
 import asyncio, aiohttp
 import time
-from aiohttp import ClientTimeout
 import logging
-import sqlite3
-import dotenv, os
-import argparse
-import json
-import pymongo
-import datetime
-import logging
-import dotenv
 from dotenv import load_dotenv
-from config import GlobalConfig
-from parser import ProtocolParser,Params
-from env import getenv
-from terminal import Terminal
+from .parser import ProtocolParser
+from .env import getenv
+from .terminal import Terminal
 
 class LoadRunner:
     def __init__(self):
@@ -68,6 +55,8 @@ class LoadRunner:
             metrics['error_rate']=error_rate
             metrics['maxttfb']=maxttfb
             metrics['maxttlb']=maxttlb
+            metrics['minttfb']=minttfb
+            metrics['minttlb']=minttlb
             metrics['success']=success
             metrics['failures']=failures
             metrics['numreq']=numreq
