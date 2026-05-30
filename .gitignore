@@ -110,7 +110,8 @@ console.log
 *.db
 *.sqlite
 *.sqlite3
-
+cli-review.md
+db-parser-review.md
 # IDE
 .vscode/
 .idea/

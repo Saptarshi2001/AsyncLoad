@@ -55,3 +55,8 @@ MetricRow:hover {
     text-align: right;
     content-align: right middle;
 }
+
+.history-separator {
+    color: #6272a4;
+    margin: 1 0;
+}

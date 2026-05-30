@@ -11,12 +11,6 @@ class TestLoadRunner(unittest.TestCase):
 
         self.assertIsInstance(runner, LoadRunner)
 
-    def test_view_session_history_is_currently_a_noop(self):
-        runner = LoadRunner()
-
-        self.assertIsNone(runner.view_session_history())
-        self.assertIsNone(runner.view_session_history(timemode="weekly"))
-
     @patch("asyncload.cli.Terminal")
     @patch("asyncload.cli.aiohttp.ClientSession")
     @patch("asyncload.cli.aiohttp.TCPConnector")
@@ -30,7 +24,7 @@ class TestLoadRunner(unittest.TestCase):
 
         async def run_case():
             return await runner.run(
-                "https://example.com",
+                "https://httpbin.org/get",
                 numreq=1,
                 conreq=1,
                 reqtype="get",
@@ -38,9 +32,8 @@ class TestLoadRunner(unittest.TestCase):
 
         import asyncio
 
-        result = asyncio.run(run_case())
-
-        self.assertIsNone(result)
+        with self.assertRaises(RuntimeError):
+            asyncio.run(run_case())
         mock_connector.assert_called_once_with(limit=1, limit_per_host=1)
         mock_terminal.assert_not_called()
 

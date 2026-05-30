@@ -7,12 +7,12 @@ from .config import GlobalConfig
 
 @dataclass
 class Params:
-    url:str
-    numreq:int
-    conreq:int
-    method:str
-    timemode:str|None
-    body:dict|None
+    url: str
+    numreq: int
+    conreq: int
+    method: str
+    timemode: str | None
+    body: str | None
 
 
 
@@ -26,18 +26,10 @@ class ProtocolParser:
 
     def add_args(self):
         self.parser.add_argument("url", nargs="?", type=str, help="URL to load test")
-        self.parser.add_argument(
-            "-history", action="store_true", help="view session history"
-        )
-        self.parser.add_argument(
-            "-setup", action="store_true", help="Create global config file"
-        )
-        self.parser.add_argument(
-            "-n", type=int, help="Number of total requests (overrides config)"
-        )
-        self.parser.add_argument(
-            "-c", type=int, help="Number of concurrent requests (overrides config)"
-        )
+        self.parser.add_argument("-history", action="store_true", help="view session history")
+        self.parser.add_argument("-setup", action="store_true", help="Create global config file")
+        self.parser.add_argument("-n", type=int, help="Number of total requests (overrides config)")
+        self.parser.add_argument("-c", type=int, help="Number of concurrent requests (overrides config)")
         self.parser.add_argument(
             "-d",
             "--data",
@@ -50,21 +42,11 @@ class ProtocolParser:
 
     def add_mutually_excusive_groups(self):
         httpmethods = self.parser.add_mutually_exclusive_group()
-        httpmethods.add_argument(
-            "-GET", dest="method", action="store_const", const="get"
-        )
-        httpmethods.add_argument(
-            "-POST", dest="method", action="store_const", const="post"
-        )
-        httpmethods.add_argument(
-            "-PUT", dest="method", action="store_const", const="put"
-        )
-        httpmethods.add_argument(
-            "-DELETE", dest="method", action="store_const", const="delete"
-        )
-        httpmethods.add_argument(
-            "-PATCH", dest="method", action="store_const", const="patch"
-        )
+        httpmethods.add_argument("-GET", dest="method", action="store_const", const="get")
+        httpmethods.add_argument("-POST", dest="method", action="store_const", const="post")
+        httpmethods.add_argument("-PUT", dest="method", action="store_const", const="put")
+        httpmethods.add_argument("-DELETE", dest="method", action="store_const", const="delete")
+        httpmethods.add_argument("-PATCH", dest="method", action="store_const", const="patch")
 
     def parse(self):
         args = self.parser.parse_args()
@@ -73,18 +55,19 @@ class ProtocolParser:
             config_setup = GlobalConfig()
             global_config_path = config_setup.platform_path()
             config_setup.ensure_global_config()
-            self.parser.exit(0,f"Global config created at: {global_config_path}")
+            self.parser.exit(0, f"Global config created at: {global_config_path}")
             
 
         timemode = args.weekly or args.monthly or args.yearly or None
         if args.history:
-            if args.url or args.method or args.n or args.c:
+            if args.url or args.method or args.n or args.c or args.data:
                 self.parser.error(
-                    "--history cannot be used with URL, --method, -n, or -c"
+                    "--history cannot be used with URL, --method, -n, -c, or -d"
                 )
 
             print("Running history mode")
-            return Params(None,None,None,None,timemode)
+            return Params(None, None, None, None, timemode, None)
+        
         if not args.url:
             self.parser.error("Error: provide a URL or use -history")
 
@@ -93,11 +76,13 @@ class ProtocolParser:
         conreq = (
             args.c if args.c is not None else int(os.getenv("CONCURRENT_REQUESTS", 10))
         )
+        
         if conreq > numreq:
             self.parser.error(
                 "Number of concurrent requests cannot be more than the number of total requests"
             )
-        body=args.d if args.d is not None else None
+        
+        body = args.data if args.data is not None else None
         reqtype = args.method or os.getenv("HTTP_METHOD", "get")
-        return Params(url,numreq,conreq,reqtype,timemode,body)
+        return Params(url, numreq, conreq, reqtype, timemode, body)
         
