@@ -1,6 +1,8 @@
+![AsyncLoad terminal hero](docs/images/asyncload-hero.svg)
+
 # AsyncLoad
 
-AsyncLoad is an asynchronous load testing CLI designed to stress test your applications under heavy concurrent load. It contains database storage for session history as well as a Betterstack integration for monitoring and observability.
+AsyncLoad is an asynchronous load testing CLI designed to stress test your applications under heavy concurrent load with mongodb storage for session history and a TUI for displaying stats.
 
 ---
 
@@ -14,7 +16,7 @@ For version releases, use pip:
 pip install AsyncLoad
 asyncload -setup
 
-Set your betterstack env variables inside the global config file thats created."%LOCALAPPDATA%/loadtester/config.env" for Windows,"~/.config/loadtester/config.env" for linux and Mac. You can setup the number of requests,concurrent requests, as well as the http method either in the config file or simply use the cmd flags to override the values. Default values for number of requests,concurrent requests,http method is 100,10,GET.   
+Set your mongodb env variables inside the global config file thats created."%LOCALAPPDATA%/loadtester/config.env" for Windows,"~/.config/loadtester/config.env" for linux and Mac. You can setup the number of requests,concurrent requests, as well as the http method either in the config file or simply use the cmd flags to override the values. Default values for number of requests,concurrent requests,http method is 100,10,GET.   
 
 ```
 Head over to your cmd and type:
@@ -60,9 +62,6 @@ python -m unittest -v tests.testload
 ```
 
 
-
-
-
 ## Examples
 
 ### Basic load test
@@ -71,46 +70,7 @@ python -m unittest -v tests.testload
 asyncload https://jsonplaceholder.typicode.com/posts -n 5 -c 2 -GET
 ```
 
-```
-Running....
-============================================================
-                     Load Test Results
-============================================================
-Total Requests:                    5
-Concurrent Requests:               2
-Successful Requests:               5
-Failed Requests:                   0
-------------------------------------------------------------
-                 Individual Request Details
-------------------------------------------------------------
-Request ID   | Timestamp           | URL                            | Status   | Method    | Response Time
-----------------------------------------------------------------------------------------------------------
-594          | 24:05:2026 14:53:36 | https://jsonplaceholder.typico | 200      | get       | 0.337788
-595          | 24:05:2026 14:53:36 | https://jsonplaceholder.typico | 200      | get       | 0.392194
-596          | 24:05:2026 14:53:36 | https://jsonplaceholder.typico | 200      | get       | 0.453631
-597          | 24:05:2026 14:53:36 | https://jsonplaceholder.typico | 200      | get       | 0.535650
-598          | 24:05:2026 14:53:36 | https://jsonplaceholder.typico | 200      | get       | 0.573828
-============================================================
-
-
-                   Performance Statistics
-------------------------------------------------------------
-Total Response Time (seconds)
-  Maximum:          0.573828
-  Minimum:          0.337788
-  Average:          0.458618
-
-First Byte Time (seconds)
-  Maximum:          0.573208
-  Minimum:          0.337749
-  Average:          0.456585
-
-Last Byte Time (seconds)
-  Maximum:          0.573827
-  Minimum:          0.337787
-  Average:          0.458618
-============================================================
-```
+![AsyncLoad metrics dashboard](docs/images/metrics-dashboard.svg)
 
 ### Viewing history
 
@@ -118,15 +78,7 @@ Last Byte Time (seconds)
 asyncload -history
 ```
 
-```
-Request ID   | Timestamp           | URL                       | Status   | Method    | Response Time
--------------------------------------------------------------------------------------------------------
-594          | 24:05:2026 14:53:36 | https://jsonplaceholder.t | 200      | get       | 0.337788
-595          | 24:05:2026 14:53:36 | https://jsonplaceholder.t | 200      | get       | 0.392194
-596          | 24:05:2026 14:53:36 | https://jsonplaceholder.t | 200      | get       | 0.453631
-597          | 24:05:2026 14:53:36 | https://jsonplaceholder.t | 200      | get       | 0.535650
-598          | 24:05:2026 14:53:36 | https://jsonplaceholder.t | 200      | get       | 0.573828
-```
+![AsyncLoad history dashboard](docs/images/history-dashboard.svg)
 
 ### Viewing weekly history
 
@@ -134,15 +86,7 @@ Request ID   | Timestamp           | URL                       | Status   | Meth
 asyncload -history -weekly
 ```
 
-```
-Request ID   | Timestamp           | URL                       | Status   | Method    | Response Time    | Week
---------------------------------------------------------------------------------------------------------------
-594          | 24:05:2026 14:53:36 | https://jsonplaceholder.t | 200      | get       | 0.337788         | 21
-595          | 24:05:2026 14:53:36 | https://jsonplaceholder.t | 200      | get       | 0.392194         | 21
-596          | 24:05:2026 14:53:36 | https://jsonplaceholder.t | 200      | get       | 0.453631         | 21
-597          | 24:05:2026 14:53:36 | https://jsonplaceholder.t | 200      | get       | 0.535650         | 21
-598          | 24:05:2026 14:53:36 | https://jsonplaceholder.t | 200      | get       | 0.573828         | 21
-```
+![AsyncLoad weekly history dashboard](docs/images/weekly-history.svg)
 
 ### POST request with payload
 
@@ -150,46 +94,7 @@ Request ID   | Timestamp           | URL                       | Status   | Meth
 asyncload https://jsonplaceholder.typicode.com/posts -n 5 -c 2 -POST -d '{"title": "foo", "body": "bar", "userId": 1}'
 ```
 
-```
-Running....
-============================================================
-                     Load Test Results
-============================================================
-Total Requests:                    5
-Concurrent Requests:               2
-Successful Requests:               5
-Failed Requests:                   0
-------------------------------------------------------------
-                 Individual Request Details
-------------------------------------------------------------
-Request ID   | Timestamp           | URL                            | Status   | Method    | Response Time
-----------------------------------------------------------------------------------------------------------
-599          | 24:05:2026 14:56:05 | https://jsonplaceholder.typico | 201      | post      | 0.592419
-600          | 24:05:2026 14:56:05 | https://jsonplaceholder.typico | 201      | post      | 1.002274
-601          | 24:05:2026 14:56:05 | https://jsonplaceholder.typico | 201      | post      | 1.025395
-602          | 24:05:2026 14:56:05 | https://jsonplaceholder.typico | 201      | post      | 1.347690
-603          | 24:05:2026 14:56:05 | https://jsonplaceholder.typico | 201      | post      | 1.392546
-============================================================
-
-
-                   Performance Statistics
-------------------------------------------------------------
-Total Response Time (seconds)
-  Maximum:          1.392546
-  Minimum:          0.592419
-  Average:          1.072065
-
-First Byte Time (seconds)
-  Maximum:          1.392511
-  Minimum:          0.592399
-  Average:          1.072046
-
-Last Byte Time (seconds)
-  Maximum:          1.392546
-  Minimum:          0.592419
-  Average:          1.072064
-============================================================
-```
+![AsyncLoad POST metrics dashboard](docs/images/post-dashboard.svg)
 
 ### High concurrency test
 
@@ -197,45 +102,7 @@ Last Byte Time (seconds)
 asyncload https://jsonplaceholder.typicode.com/posts -n 20 -c 10 -GET
 ```
 
-```
-Running....
-============================================================
-                     Load Test Results
-============================================================
-Total Requests:                   20
-Concurrent Requests:              10
-Successful Requests:              20
-Failed Requests:                   0
-------------------------------------------------------------
-                 Individual Request Details
-------------------------------------------------------------
-Request ID   | Timestamp           | URL                            | Status   | Method    | Response Time
-----------------------------------------------------------------------------------------------------------
-609          | 24:05:2026 14:57:12 | https://jsonplaceholder.typico | 200      | get       | 0.395732
-610          | 24:05:2026 14:57:12 | https://jsonplaceholder.typico | 200      | get       | 0.397407
-...
-628          | 24:05:2026 14:57:12 | https://jsonplaceholder.typico | 200      | get       | 1.824638
-============================================================
-
-
-                   Performance Statistics
-------------------------------------------------------------
-Total Response Time (seconds)
-  Maximum:          1.824638
-  Minimum:          0.395732
-  Average:          0.861470
-
-First Byte Time (seconds)
-  Maximum:          1.824627
-  Minimum:          0.383778
-  Average:          0.857246
-
-Last Byte Time (seconds)
-  Maximum:          1.824638
-  Minimum:          0.395731
-  Average:          0.861470
-============================================================
-```
+![AsyncLoad high concurrency dashboard](docs/images/high-concurrency-dashboard.svg)
 
 ---
 
@@ -243,7 +110,7 @@ Last Byte Time (seconds)
 
 ## GlobalConfig
 
-### platform_path
+### platform_path()
 
 sets up the global config variable accordingly with the underlying os 
 
@@ -255,17 +122,17 @@ sets up the global config variable accordingly with the underlying os
 Creates the global config file in the user's system
 
 
-## Loadtester
+## LoadRunner
 
-### read()
+### main()
 
-Reads the command line arguments before executing the load test.
+Starts off the cli.
 
 ---
 
-### testurl(url, numreq, conreq, reqtype, headers=None)
+### run(url, numreq, conreq, reqtype, headers=None)
 
-The core function of AsyncLoad. Sends requests to the specified URL asynchronously.
+The core execution function of AsyncLoad. Sends requests to the specified URL asynchronously and calculates the stats.
 
 **Parameters:**
 
@@ -275,52 +142,178 @@ The core function of AsyncLoad. Sends requests to the specified URL asynchronous
 | `numreq` | `int` | Number of total requests |
 | `conreq` | `int` | Number of concurrent requests |
 | `reqtype` | `str` | HTTP method (GET, POST, PUT, DELETE, etc.) |
-| `headers` | `dict` | Optional HTTP headers |
+| `body` | str \| None | request body to be used during POST,PUT,PATCH requests |
 
 ---
 
-### insertpayload(reqlist)
+## Record
+### insertmetrics(reqlist)
 
-Stores the return values from the requests in an SQLite database instance.
+Stores the metrics that you get from the load test in a mongodb instance.
 
 **Parameters:**
 
 | Name | Type | Description |
 |------|------|-------------|
-| `reqlist` | `list` | http request results to be stored |
+| `metrics` | `dict` | load test metrics  |
 
 ---
 
-### history(timemode=None)
+### getmetrics(timemode=None)
 
-Retrieves the session history from the database instance.
+Retrieves the metrics stored as session history from the database.
 
 **Parameters:**
 
 | Name | Type | Description |
 |------|------|-------------|
-| `timemode` | `str` | Optional filter: 'weekly', 'monthly', or 'yearly' |
+| `timemode` | str \| None | specifies the time range of session history that is to be fetched 
 
----
+###  _time_range(timemode=None):
 
-### stats(totresponsetime, firstbytetime, lastbytetime)
-
-Calculates minimum, maximum, and average of total response time, first byte time, and last byte time.
+Calculates the start and end date for fetching session history.If timemode is not given ,it fetches all the records right from the earliest record until the present moment. 
 
 **Parameters:**
 
 | Name | Type | Description |
 |------|------|-------------|
-| `totresponsetime` | `list` | List of total response times |
-| `firstbytetime` | `list` | List of first byte times |
-| `lastbytetime` | `list` | List of last byte times |
+| `timemode` | str \| None | specifies the time range of session history that is to be fetched |
+
+---
+
+## ProtocolParser
+
+### parse()
+
+Parses the command line arguments and returns the values as a Params object that is used by the loadrunner for executing run() or fetch session history.
 
 
 ---
 
-### desc()
+### add_args()
 
-Displays the load test statistics in the terminal.
+Adds the common cli flags like url,history,setup,number of requests,concurrent requests,data and history time filters.
+
+---
+
+### add_mutually_excusive_groups()
+
+Adds the mutually exclusive HTTP method flags so that only one method like GET,POST,PUT,DELETE or PATCH can be selected at a time.
+
+---
+
+## Params
+
+Stores the parsed command line values returned from `ProtocolParser.parse()`.
+
+**Fields:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| `url` | `str` | The URL to load test |
+| `numreq` | `int` | Number of total requests |
+| `conreq` | `int` | Number of concurrent requests |
+| `method` | `str` | HTTP method to use |
+| `timemode` | str \| None | history range like weekly,monthly or yearly |
+| `body` | str \| None | JSON request body parsed from `-d` or `--data` |
+
+---
+
+## EnvKeys
+
+Stores the environment variable names later used by AsyncLoad.
+
+**Fields:**
+
+| Name | Description |
+|------|-------------|
+| `MONGO_URL` | MongoDB connection URL |
+| `MONGO_DATABASE` | MongoDB database name |
+| `MONGO_COLLECTION` | MongoDB collection name |
+| `TIMEOUT` | Request timeout value |
+| `TOTAL_REQUESTS` |  total request count |
+| `CONCURRENT_REQUESTS` |  concurrent request count |
+| `HTTP_METHOD` |  HTTP method |
+
+---
+
+## Env
+
+Dataclass used for composing the env values in a single unit.
+
+**Fields:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| `MONGO_URL` | `str` | MongoDB connection URL |
+| `DATABASE` | `str` | MongoDB database name |
+| `COLLECTION` | `str` | MongoDB collection name |
+| `TIMEOUT` | `int` | Request timeout value |
+| `TOTAL_REQUESTS` | `int` |  total request count |
+| `CONCURRENT_REQUESTS` | `int` |  concurrent request count |
+| `HTTP_METHOD` | `str` |  HTTP method |
+
+---
+
+### getenv()
+
+Reads the environment variables from .env file and returns them inside an `Env` dataclass.
+
+---
+
+## MetricRow
+
+### _format_value(name,value)
+
+Formats metric values before they are displayed in the terminal.
+
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| `name` | `str` | metric name |
+| `value` |  str \| int \| float \| | name of the metric as well as its value to be displayed |
+
+---
+
+## Terminal
+
+### compose()
+
+Builds the Textual terminal UI.It displays either the current metrics  or the session history records.
+
+---
+
+### _compose_history()
+
+Builds the history view in the terminal.It displays the URL,timestamp and metrics for each stored history record.
+
+---
+
+### _title()
+
+Returns the title shown at the top of the terminal dashboard.
+
+---
+
+### _format_timestamp(timestamp)
+
+Formats timestamps for display in the terminal.
+
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| `timestamp` | datetime \| None | date and time that is to be formatted before being displayed
+
+---
+
+### displaystats()
+
+Starts the Textual application and shows the metrics dashboard in the terminal.
+
+---
+
 
 
 
@@ -341,13 +334,11 @@ Displays the load test statistics in the terminal.
 
 ## Changelog
 
-### [1.0.0] - 2026-05-11
-#### Added
-- Initial release of AsyncLoad
+### [0.1.5] - 2026-06-01
 - Asynchronous load testing CLI with concurrent request support
-- Database storage for session history using SQLite
-- Betterstack integration for monitoring and observability
+- Mongodb Database storage for session history using SQLite
 - Support for multiple HTTP methods (GET, POST, PUT, DELETE, HEAD, PATCH)
 - Configurable concurrency and request count
-- Session history viewing (weekly, monthly, yearly)
+- Session history viewing (weekly, monthly, yearly) 
 - Load testing stats 
+- TUI views

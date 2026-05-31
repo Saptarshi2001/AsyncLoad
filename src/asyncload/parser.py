@@ -4,7 +4,7 @@ import argparse
 import os
 from dataclasses import dataclass
 from .config import GlobalConfig
-
+import json
 @dataclass
 class Params:
     url: str
@@ -82,7 +82,7 @@ class ProtocolParser:
                 "Number of concurrent requests cannot be more than the number of total requests"
             )
         
-        body = args.data if args.data is not None else None
+        body = json.loads(args.data)  if args.data is not None else None
         reqtype = args.method or os.getenv("HTTP_METHOD", "get")
         return Params(url, numreq, conreq, reqtype, timemode, body)
         
