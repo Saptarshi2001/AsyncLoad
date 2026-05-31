@@ -6,6 +6,11 @@ AsyncLoad is an asynchronous load testing CLI designed to stress test your appli
 
 ---
 
+## Requirements
+- Python 
+- Textual
+- Mongodb
+
 ## Installation
 
 ### Install from pip
@@ -15,10 +20,10 @@ For version releases, use pip:
 ```bash
 pip install AsyncLoad
 asyncload -setup
-
-Set your mongodb env variables inside the global config file thats created."%LOCALAPPDATA%/loadtester/config.env" for Windows,"~/.config/loadtester/config.env" for linux and Mac. You can setup the number of requests,concurrent requests, as well as the http method either in the config file or simply use the cmd flags to override the values. Default values for number of requests,concurrent requests,http method is 100,10,GET.   
-
 ```
+- Set your mongodb env variables inside the global config file thats created. "%LOCALAPPDATA%/loadtester/config.env" for Windows, "~/.config/loadtester/config.env" for linux and Mac. You can setup the number of requests,concurrent requests, as well as the http method either in the config file or simply use the cmd flags to override the values. Default values for number of requests,concurrent requests,http method is 100,10,GET.   
+
+
 Head over to your cmd and type:
 
 ```bash
@@ -30,7 +35,7 @@ asyncload https://httpbin.org/ -n 100 -c 10 -GET
 For building from source, install directly from the git repository:
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/Saptarshi2001/AsyncLoad.git
 cd Asyncload
 pip install .
 cp config.env.example config.env # set up your config file 
@@ -53,12 +58,13 @@ docker compose run --rm asyncload https://httpbin.org/ -n 100 -c 10 -GET
 python -m unittest discover tests/
 
 # Run specific test modules
-python -m unittest tests.testload
-python -m unittest tests.testasync
-python -m unittest tests.testdb
+python -m unittest tests.test_load
+python -m unittest tests.test_async
+python -m unittest tests.test_db
+python -m unittest tests.test_integration
 
 # Run with verbose output
-python -m unittest -v tests.testload
+python -m unittest -v tests.test_load
 ```
 
 
