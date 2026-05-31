@@ -71,7 +71,7 @@ class LoadRunner:
             avg_latency = (sum(ttlb_list) / len(ttlb_list)) * 1000
 
             metrics.clear()
-            metrics["url"] = url
+            
             metrics["p99"] = p99
             metrics["p95"] = p95
             metrics["throughput"] = throughput
@@ -86,7 +86,7 @@ class LoadRunner:
             metrics["conreq"] = conreq
             metrics["avg_latency"] = avg_latency
             rec = Record()
-            rec.insertmetrics(metrics)
+            rec.insertmetrics(url,metrics)
             return metrics
             
 

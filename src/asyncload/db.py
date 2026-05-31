@@ -11,7 +11,7 @@ class Record:
         pass
             
 
-    def insertmetrics(self, metrics):
+    def insertmetrics(self,url, metrics):
         env = getenv()
         client = pymongo.MongoClient(env.MONGO_URL)
         db = client[env.DATABASE]
@@ -20,7 +20,7 @@ class Record:
         try:
             collc.create_index([("metrics.timestamp", ASCENDING)])
             collc.update_one(
-                {"url": metrics["url"]},
+                {"url": url},
                 {
                     "$push": {
                         "metrics": {

@@ -46,8 +46,8 @@ class TestMongoIntegration(unittest.TestCase):
         try:
             with patch.dict(os.environ, env, clear=False):
                 Record().insertmetrics(
+                    "https://jsonplaceholder.typicode.com/posts",
                     {
-                        "url": "https://jsonplaceholder.typicode.com/posts",
                         "p99": 140.0,
                         "p95": 95.0,
                         "throughput": 250.0,
@@ -60,7 +60,7 @@ class TestMongoIntegration(unittest.TestCase):
                         "failures": 1,
                         "numreq": 100,
                         "conreq": 10,
-                    }
+                    },
                 )
                 records = Record().getmetrics("weekly")
 
@@ -99,9 +99,10 @@ class TestLoadRunnerHttpIntegration(unittest.TestCase):
                 ):
                     mock_getenv.return_value = MagicMock(TIMEOUT=5)
                     result = await LoadRunner().run(url, numreq=5, conreq=2, reqtype="get")
-                    metrics = mock_record.return_value.insertmetrics.call_args.args[0]
+                    call_args = mock_record.return_value.insertmetrics.call_args.args
+                    metrics = call_args[1]
                     self.assertIs(result, metrics)
-                    self.assertEqual(metrics["url"], url)
+                    self.assertEqual(call_args[0], url)
                     self.assertEqual(metrics["success"], 5)
                     self.assertEqual(metrics["failures"], 0)
                     self.assertEqual(metrics["numreq"], 5)
@@ -133,7 +134,7 @@ class TestLoadRunnerHttpIntegration(unittest.TestCase):
                 ):
                     mock_getenv.return_value = MagicMock(TIMEOUT=5)
                     await LoadRunner().run(url, numreq=6, conreq=3, reqtype="get")
-                    metrics = mock_record.return_value.insertmetrics.call_args.args[0]
+                    metrics = mock_record.return_value.insertmetrics.call_args.args[1]
                     self.assertEqual(metrics["success"], 3)
                     self.assertEqual(metrics["failures"], 3)
                     self.assertEqual(metrics["error_rate"], 50.0)
@@ -205,7 +206,7 @@ class TestLoadRunnerMetricCalculations(unittest.TestCase):
                 )
             )
 
-        metrics = mock_record.return_value.insertmetrics.call_args.args[0]
+        metrics = mock_record.return_value.insertmetrics.call_args.args[1]
         self.assertEqual(metrics["p95"], 200.0)
         self.assertEqual(metrics["p99"], 200.0)
         self.assertEqual(metrics["maxttlb"], 300.0)

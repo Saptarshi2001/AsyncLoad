@@ -51,30 +51,32 @@ class TestRecord(unittest.TestCase):
         mock_client = MagicMock()
         mock_mongo_client.return_value = mock_client
 
-        result = Record().insertmetrics(
-            {
-                "url": "https://httpbin.org/get",
-                "p99": 99,
-                "p95": 95,
-                "throughput": 10,
-                "avg_latency": 1.5,
-                "maxttfb": 2,
-                "minttfb": 1,
-                "maxttlb": 3,
-                "minttlb": 1.2,
-                "success": 9,
-                "failures": 1,
-                "numreq": 10,
-                "conreq": 2,
-            }
-        )
+        url = "https://httpbin.org/get"
+        metrics = {
+            "p99": 99,
+            "p95": 95,
+            "throughput": 10,
+            "avg_latency": 1.5,
+            "maxttfb": 2,
+            "minttfb": 1,
+            "maxttlb": 3,
+            "minttlb": 1.2,
+            "success": 9,
+            "failures": 1,
+            "numreq": 10,
+            "conreq": 2,
+        }
+
+        result = Record().insertmetrics(url, metrics)
 
         self.assertIsNone(result)
         mock_mongo_client.assert_called_once_with("mongodb://localhost:27017")
         mock_client.__getitem__.assert_called_once_with("asyncload")
         mock_client.__getitem__.return_value.__getitem__.assert_called_once_with("runs")
         mock_client.close.assert_called_once()
-        mock_client.__getitem__.return_value.__getitem__.return_value.update_one.assert_called_once()
+        update_one = mock_client.__getitem__.return_value.__getitem__.return_value.update_one
+        update_one.assert_called_once()
+        self.assertEqual(update_one.call_args.args[0], {"url": url})
 
     @patch("asyncload.db.pymongo.MongoClient")
     @patch("asyncload.db.getenv")

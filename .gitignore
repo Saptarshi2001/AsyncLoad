@@ -112,6 +112,7 @@ console.log
 *.sqlite3
 cli-review.md
 db-parser-review.md
+coderabbit-parser-review.md
 test-report.md
 # IDE
 .vscode/
