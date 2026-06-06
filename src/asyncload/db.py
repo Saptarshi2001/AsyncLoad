@@ -3,6 +3,7 @@ from .env import getenv
 from datetime import datetime
 from datetime import timedelta
 from pymongo import ASCENDING
+from pymongo.errors import PyMongoError
 
 
 class Record:
@@ -42,6 +43,9 @@ class Record:
                 },
                 upsert=True,
             )
+        except PyMongoError as exc:
+            print("Timeout error")
+            return
         finally:
             client.close()
 
@@ -76,6 +80,9 @@ class Record:
                     ]
                 )
             )
+        except PyMongoError as exc:
+            print("Timeout error:")
+            return
         finally:
             client.close()
 

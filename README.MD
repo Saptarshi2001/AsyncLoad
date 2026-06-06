@@ -21,7 +21,7 @@ For version releases, use pip:
 pip install AsyncLoad
 asyncload -setup
 ```
-- Set your mongodb env variables inside the global config file thats created. "%LOCALAPPDATA%/loadtester/config.env" for Windows, "~/.config/loadtester/config.env" for linux and Mac. You can setup the number of requests,concurrent requests, as well as the http method either in the config file or simply use the cmd flags to override the values. Default values for number of requests,concurrent requests,http method is 100,10,GET.   
+- Set your mongodb env variables inside the global config file thats created. "%LOCALAPPDATA%/AsyncLoad/config.env" for Windows, "~/.config/loadtester/config.env" for linux and Mac. You can setup the number of requests,concurrent requests, as well as the http method either in the config file or simply use the cmd flags to override the values. Default values for number of requests,concurrent requests,http method is 100,10,GET.   
 
 
 Head over to your cmd and type:
@@ -49,6 +49,8 @@ Or Use Docker to build and run the source:
 docker compose build
 docker compose run --rm asyncload https://httpbin.org/ -n 100 -c 10 -GET
 ```
+
+Docker Compose starts a MongoDB service automatically and points AsyncLoad to it with `MONGO_URL=mongodb://mongo:27017`. For local runs outside Docker, keep `MONGO_URL` pointed at your local MongoDB instance, such as `mongodb://127.0.0.1:27017`.
 
 
 ### Running the tests

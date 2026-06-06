@@ -7,7 +7,7 @@
 ```bash
 pip install -r requirements.txt
 cp config.env.example config.env
-# Edit config.env with your LOGTAIL_TOKEN, LOGTAIL_URL, TOTAL_REQUESTS, CONCURRENT_REQUESTS, HTTP_METHOD
+# Edit config.env with your MongoDB settings, TIMEOUT, TOTAL_REQUESTS, CONCURRENT_REQUESTS, HTTP_METHOD
 python asyncload https://example.com
 ```
 
@@ -24,8 +24,10 @@ After pip install, create a global config at:
 
 Contents:
 ```
-LOGTAIL_TOKEN=your_token
-LOGTAIL_URL=your_url
+MONGO_URL=mongodb://127.0.0.1:27017
+MONGO_DATABASE=asyncload
+MONGO_COLLECTION=metrics
+TIMEOUT=10
 TOTAL_REQUESTS=100
 CONCURRENT_REQUESTS=10
 HTTP_METHOD=get
@@ -40,8 +42,10 @@ asyncload https://example.com
 
 ```bash
 docker compose build
-docker compose run --rm server https://example.com
+docker compose run --rm asyncload https://example.com
 ```
+
+Docker Compose starts MongoDB for you and overrides the app container's `MONGO_URL` to `mongodb://mongo:27017`. Your local `config.env` can still use `mongodb://127.0.0.1:27017` for non-Docker runs.
 
 ---
 
@@ -148,10 +152,10 @@ asyncload [url] [-history] [-n N] [-c C] [-GET | -POST | -PUT | -DELETE | -PATCH
 docker compose build
 
 # Run with config
-docker compose run --rm server https://example.com
+docker compose run --rm asyncload https://example.com
 
 # Run with CLI overrides
-docker compose run --rm server https://example.com -n 500 -c 50 -POST
+docker compose run --rm asyncload https://example.com -n 500 -c 50 -POST
 ```
 
 

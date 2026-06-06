@@ -1,7 +1,26 @@
+name: asyncload
+
 services:
-  server:
+  asyncload:
     build:
       context: .
     entrypoint: ["asyncload"]
+    environment:
+      MONGO_URL: mongodb://mongo:27017
+      TERM: xterm-256color
+      COLORTERM: truecolor
+      FORCE_COLOR: "1"
+    tty: true
+    stdin_open: true
+    depends_on:
+      - mongo
     volumes:
       - .:/AsyncLoad
+
+  mongo:
+    image: mongo:7
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:
