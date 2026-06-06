@@ -30,12 +30,7 @@ class ProtocolParser:
         self.parser.add_argument("-setup", action="store_true", help="Create global config file")
         self.parser.add_argument("-n", type=int, help="Number of total requests (overrides config)")
         self.parser.add_argument("-c", type=int, help="Number of concurrent requests (overrides config)")
-        self.parser.add_argument(
-            "-d",
-            "--data",
-            type=str,
-            help="JSON body or payload for POST/PUT/PATCH/DELETE",
-        )
+        self.parser.add_argument("-d","--data",type=str,help="JSON body or payload for POST/PUT/PATCH",)
         self.parser.add_argument("-weekly", action="store_const", const="weekly")
         self.parser.add_argument("-monthly", action="store_const", const="monthly")
         self.parser.add_argument("-yearly", action="store_const", const="yearly")
@@ -84,5 +79,9 @@ class ProtocolParser:
         
         body = json.loads(args.data)  if args.data is not None else None
         reqtype = args.method or os.getenv("HTTP_METHOD", "get")
+        if args.data is not None and reqtype not in {"post", "put", "patch"}:
+            self.parser.error("-d/--data can only be used with -POST, -PUT, or -PATCH")
+
+        
         return Params(url, numreq, conreq, reqtype, timemode, body)
         

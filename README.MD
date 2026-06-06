@@ -49,6 +49,11 @@ Or Use Docker to build and run the source:
 docker compose build
 docker compose run --rm asyncload https://httpbin.org/ -n 100 -c 10 -GET
 ```
+- If you want to only use the asyncload container without the mongo container,then:
+```bash
+docker compose run --rm --no-deps -e MONGO_URL=mongodb://host.docker.internal:27017 asyncload https://httpbin.org/ -n 100 -c 10 -GET
+```
+- Make sure that the http method in the config file is GET,POST,PUT,PATCH,DELETE
 
 Docker Compose starts a MongoDB service automatically and points AsyncLoad to it with `MONGO_URL=mongodb://mongo:27017`. For local runs outside Docker, keep `MONGO_URL` pointed at your local MongoDB instance, such as `mongodb://127.0.0.1:27017`.
 
@@ -77,8 +82,22 @@ python -m unittest -v tests.test_load
 ```bash
 asyncload https://jsonplaceholder.typicode.com/posts -n 5 -c 2 -GET
 ```
-
 ![AsyncLoad metrics dashboard](docs/images/metrics-dashboard.svg)
+
+### Load test using only the config file 
+```bash
+asyncload https://jsonplaceholder.typicode.com/posts
+```
+### Override using flags
+```bash
+asyncload https://jsonplaceholder.typicode.com/posts -n 10 -GET
+```
+```bash
+asyncload https://jsonplaceholder.typicode.com/posts -GET
+```
+```bash
+asyncload https://jsonplaceholder.typicode.com/posts -POST -d '{"title": "foo", "body": "bar", "userId": 1}'
+```
 
 ### Viewing history
 
@@ -97,17 +116,25 @@ asyncload -history -weekly
 ![AsyncLoad weekly history dashboard](docs/images/weekly-history.svg)
 
 ### POST request with payload
-
+#### In Windows
+- If you are using git bash use 
 ```bash
 asyncload https://jsonplaceholder.typicode.com/posts -n 5 -c 2 -POST -d '{"title": "foo", "body": "bar", "userId": 1}'
 ```
-
+- If you are using powershell or windows cmd use
+```bash
+asyncload https://jsonplaceholder.typicode.com/posts -n 5 -c 2 -POST -d '{""title"": ""foo"", ""body"": ""bar"", ""userId"": 1}'
+```
+- In linux or mac this works,
+```bash
+asyncload https://jsonplaceholder.typicode.com/posts -n 5 -c 2 -POST -d '{"title": "foo", "body": "bar", "userId": 1}'
+```
 ![AsyncLoad POST metrics dashboard](docs/images/post-dashboard.svg)
 
 ### High concurrency test
 
 ```bash
-asyncload https://jsonplaceholder.typicode.com/posts -n 20 -c 10 -GET
+asyncload https://jsonplaceholder.typicode.com/posts -n 1000 -c 200 -GET
 ```
 
 ![AsyncLoad high concurrency dashboard](docs/images/high-concurrency-dashboard.svg)
