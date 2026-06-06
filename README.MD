@@ -21,7 +21,7 @@ For version releases, use pip:
 pip install AsyncLoad
 asyncload -setup
 ```
-- Set your mongodb env variables inside the global config file thats created. "%LOCALAPPDATA%/AsyncLoad/config.env" for Windows, "~/.config/loadtester/config.env" for linux and Mac. You can setup the number of requests,concurrent requests, as well as the http method either in the config file or simply use the cmd flags to override the values. Default values for number of requests,concurrent requests,http method is 100,10,GET.   
+- Set your mongodb env variables inside the global config file thats created. "%LOCALAPPDATA%/AsyncLoad/config.env" for Windows, "~/.config/loadtester/config.env" for linux and Mac. You can setup the number of requests,concurrent requests, as well as the http method either in the config file or simply use the cmd flags to override any of the values. Default values for number of requests,concurrent requests,http method is 100,10,GET.   
 
 
 Head over to your cmd and type:
