@@ -6,7 +6,7 @@ AsyncLoad is an asynchronous load testing CLI designed to stress test your appli
 
 ---
 
-## Requirements
+## Requirements (Without docker)
 - Python 
 - Textual
 - Mongodb
@@ -88,16 +88,23 @@ asyncload https://jsonplaceholder.typicode.com/posts -n 5 -c 2 -GET
 ```bash
 asyncload https://jsonplaceholder.typicode.com/posts
 ```
+![AsyncLoad config dashboard](docs/images/config-dashboard.svg)
+
 ### Override using flags
 ```bash
 asyncload https://jsonplaceholder.typicode.com/posts -n 10 -GET
 ```
+![AsyncLoad override request count dashboard](docs/images/override-request-count-dashboard.svg)
+
 ```bash
 asyncload https://jsonplaceholder.typicode.com/posts -GET
 ```
+![AsyncLoad override method dashboard](docs/images/override-method-dashboard.svg)
+
 ```bash
 asyncload https://jsonplaceholder.typicode.com/posts -POST -d '{"title": "foo", "body": "bar", "userId": 1}'
 ```
+![AsyncLoad override POST dashboard](docs/images/override-post-dashboard.svg)
 
 ### Viewing history
 
